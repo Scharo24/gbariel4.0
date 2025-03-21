@@ -1,5 +1,6 @@
 from app import db, app, Usuario
 from werkzeug.security import generate_password_hash
+import os
 
 def inicializar_bd():
     with app.app_context():
@@ -9,10 +10,12 @@ def inicializar_bd():
         # Verificar si el usuario admin ya existe
         admin = Usuario.query.filter_by(username="admin").first()
         if not admin:
-            admin = Usuario(username="admin", password_hash=generate_password_hash("1234"), rol="admin")
+            # Asegurarse de que la contraseña sea segura
+            contraseña_segura = os.getenv('ADMIN_PASSWORD', '1234')  # Usar una contraseña más segura si está en el entorno
+            admin = Usuario(username="admin", password_hash=generate_password_hash(contraseña_segura), rol="admin")
             db.session.add(admin)
             db.session.commit()
-            print("✅ Usuario 'admin' creado con éxito (contraseña: 1234).")
+            print(f"✅ Usuario 'admin' creado con éxito (contraseña: {contraseña_segura}).")
         else:
             print("ℹ️ Usuario 'admin' ya existe.")
 

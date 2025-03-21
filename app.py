@@ -2,18 +2,13 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime  # Importar datetime
 
 app = Flask(__name__)
 app.secret_key = 'clave_secreta'
 
-# Verificar que la carpeta 'instance' existe
-if not os.path.exists('instance'):
-    os.makedirs('instance')
-
 # Configuración de la base de datos
-db_path = os.path.join('instance', 'database.db')
-db_path = os.path.abspath(os.path.join(os.getcwd(), "instance", "database.db"))
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://gbariel4_0_user:gsbycbcOVxEcEmRXF7gixjHiSuSXB5ya@dpg-cvev2mfnoe9s73baqku0-a.oregon-postgres.render.com/gbariel4_0')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -24,6 +19,28 @@ class Usuario(db.Model):
     username = db.Column(db.String(50), unique=True, nullable=False)
     password_hash = db.Column(db.String(100), nullable=False)
     rol = db.Column(db.String(20), nullable=False, default='usuario')
+
+# ------------------------------------------------------------------------------------
+#  AQUI EMPIEZA EL MODELO INVENTARIO
+# ------------------------------------------------------------------------------------
+class Inventario(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    event_id = db.Column(db.Integer)
+    fecha_evento = db.Column(db.Date)  # Usar db.Date o db.DateTime según corresponda
+    evento = db.Column(db.String(255))
+    venue = db.Column(db.String(255))
+    seccion = db.Column(db.String(255))
+    fila = db.Column(db.String(255))
+    cantidad_tk = db.Column(db.Integer)
+    estado = db.Column(db.String(50))
+    usuario = db.Column(db.String(50))
+    informacion_compra = db.Column(db.Text)  # Usar db.Text para campos más largos
+    target = db.Column(db.Text)
+    comentarios = db.Column(db.Text)
+    link = db.Column(db.String(255))
+# ------------------------------------------------------------------------------------
+#  AQUI TERMINA EL MODELO INVENTARIO
+# ------------------------------------------------------------------------------------
 
 # Ruta de inicio - Redirige al panel si ya está logueado
 @app.route('/')
@@ -98,7 +115,16 @@ def inventario():
     if 'user' not in session:
         flash("⚠️ Debes iniciar sesión primero", "warning")
         return redirect(url_for('index'))
-    return render_template('inventario.html')
+
+    # Obtener todos los registros del inventario de la base de datos
+    inventario = Inventario.query.all()
+
+    # Formatear la fecha para mostrarla en el template
+    for item in inventario:
+        if item.fecha_evento:
+            item.fecha_evento = item.fecha_evento.strftime('%Y-%m-%d')  # Formato YYYY-MM-DD
+
+    return render_template('inventario.html', inventario=inventario)
 
 # 🔹 **Ingreso Masivo**
 @app.route('/ingreso_masivo', methods=['GET', 'POST'])
@@ -166,4 +192,6 @@ if __name__ == '__main__':
         db.create_all()
         crear_admin()  # Verifica si el admin existe, si no, lo crea
         print("✅ Base de datos lista.")
-    app.run(debug=True)
+    
+    # Asegúrate de que Flask esté corriendo en el puerto 8080 para Fly.io
+    app.run(host="0.0.0.0", port=8080, debug=True)
