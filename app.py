@@ -1,8 +1,13 @@
+from dotenv import load_dotenv
 import os
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime  # Importar datetime
+from flask_migrate import Migrate  # Importar Migrate
+
+# Cargar el archivo .env
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = 'clave_secreta'
@@ -11,17 +16,19 @@ app.secret_key = 'clave_secreta'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://gbariel4_0_user:gsbycbcOVxEcEmRXF7gixjHiSuSXB5ya@dpg-cvev2mfnoe9s73baqku0-a.oregon-postgres.render.com/gbariel4_0')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Inicializar la base de datos y Flask-Migrate
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 # Modelo de usuario con roles
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
-    password_hash = db.Column(db.String(100), nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)  # Cambiar a 255 caracteres
     rol = db.Column(db.String(20), nullable=False, default='usuario')
 
 # ------------------------------------------------------------------------------------
-#  AQUI EMPIEZA EL MODELO INVENTARIO
+# AQUI EMPIEZA EL MODELO INVENTARIO
 # ------------------------------------------------------------------------------------
 class Inventario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -39,7 +46,7 @@ class Inventario(db.Model):
     comentarios = db.Column(db.Text)
     link = db.Column(db.String(255))
 # ------------------------------------------------------------------------------------
-#  AQUI TERMINA EL MODELO INVENTARIO
+# AQUI TERMINA EL MODELO INVENTARIO
 # ------------------------------------------------------------------------------------
 
 # Ruta de inicio - Redirige al panel si ya está logueado
