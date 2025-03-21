@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingreso Masivo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+        }
+        .form-container {
+            background-color: #1e1e1e;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+            width: 100%;
+        }
+        .form-control {
+            background-color: #252525;
+            color: white;
+            border: 1px solid #444;
+            transition: 0.3s;
+        }
+        .form-control:focus {
+            background-color: #252525;
+            border-color: #00f7ff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        .btn-custom {
+            background-color: #00f7ff;
+            color: #121212;
+            border: none;
+            font-weight: bold;
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+        .btn-custom:hover {
+            background-color: #00d1d1;
+            color: white;
+        }
+        .btn-delete {
+            background-color: #ff5757;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            transition: 0.3s;
+            font-size: 12px;
+        }
+        .btn-delete:hover {
+            background-color: #d12e2e;
+        }
+        .btn-back {
+            background-color: #ff5757;
+            color: white;
+            border: none;
+            font-weight: bold;
+            padding: 8px 15px;
+            transition: 0.3s;
+        }
+        .btn-back:hover {
+            background-color: #d12e2e;
+        }
+        .btn-add {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+        .btn-add:hover {
+            background-color: #218838;
+        }
+        a {
+            color: #00f7ff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            color: #00d1d1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h3 class="text-center">Ingreso Masivo</h3>
+
+            <!-- Botón de Volver -->
+            <a href="{{ url_for('panel_principal') }}" class="btn btn-back">⬅️ Volver</a>
+
+            <form method="POST" action="/ingreso_masivo">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Event ID</label>
+                        <input type="text" class="form-control" name="event_id" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Evento</label>
+                        <input type="text" class="form-control" name="evento" required>
+                    </div>
+                    <div class="col-md-6 mt-3">
+                        <label>Venue</label>
+                        <input type="text" class="form-control" name="venue" required>
+                    </div>
+                    <div class="col-md-6 mt-3">
+                        <label>Estado</label>
+                        <select class="form-control" name="estado">
+                            <option value="BUY" selected>BUY</option>
+                            <option value="TO LIST">TO LIST</option>
+                            <option value="FOR SALE">FOR SALE</option>
+                            <option value="TO ATTACH">TO ATTACH</option>
+                            <option value="MANUAL PO">MANUAL PO</option>
+                            <option value="NEW">NEW</option>
+                            <option value="PROBLEM">PROBLEM</option>
+                            <option value="PRESALE">PRESALE</option>
+                            <option value="CAN'T BUY IT">CAN'T BUY IT</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mt-3">
+                        <label>Cantidad de TK por línea</label>
+                        <input type="number" class="form-control" name="cantidad_tk" required>
+                    </div>
+                    <div class="col-md-6 mt-3">
+                        <label>Fecha de Evento</label>
+                        <input type="date" class="form-control" id="fecha_evento" name="fecha_evento" required>
+                    </div>
+                    <div class="col-md-12 mt-3">
+                        <label>Link</label>
+                        <input type="text" class="form-control" id="link" name="link" placeholder="Pega aquí el link" required>
+                    </div>
+                </div>
+
+                <h5 class="mt-4">Secciones</h5>
+                <div id="seccionesContainer"></div>
+                
+                <!-- Botón para agregar secciones manualmente -->
+                <button type="button" class="btn-add" id="btnAgregarSeccion">+ Agregar Sección</button>
+
+                <button class="btn btn-custom mt-3">Crear Registros</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('btnAgregarSeccion').addEventListener('click', function() {
+            let container = document.getElementById('seccionesContainer');
+            
+            let sectionRow = document.createElement('div');
+            sectionRow.classList.add('row', 'mt-2');
+            sectionRow.innerHTML = `
+                <div class="col-md-4">
+                    <label>Sección</label>
+                    <input type="text" class="form-control" name="secciones[]" required>
+                </div>
+                <div class="col-md-4">
+                    <label>Target</label>
+                    <input type="text" class="form-control" name="targets[]" required>
+                </div>
+                <div class="col-md-3">
+                    <label>Comentarios</label>
+                    <input type="text" class="form-control" name="comentarios[]" placeholder="Opcional">
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="button" class="btn btn-delete btn-sm remove-section">🗑</button>
+                </div>
+            `;
+
+            container.appendChild(sectionRow);
+
+            // Agregar funcionalidad para eliminar líneas
+            document.querySelectorAll(".remove-section").forEach(btn => {
+                btn.addEventListener("click", function() {
+                    this.closest(".row").remove();
+                });
+            });
+        });
+    </script>
+</body>
+</html>

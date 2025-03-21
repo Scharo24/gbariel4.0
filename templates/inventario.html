@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Avanzado</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <style>
+        body {
+            background-color: #2c2f33;
+            color: white;
+            font-size: 13px;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        .navbar {
+            background-color: #23272a;
+        }
+        .sidebar {
+            background-color: #23272a;
+            padding: 15px;
+            border-radius: 10px;
+            height: 100vh;
+            position: fixed;
+            width: 250px;
+            overflow-y: auto;
+        }
+        .table-container {
+            background: #2c2f33;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin-left: 270px;
+            min-height: 100vh;
+        }
+        .editable {
+            cursor: pointer;
+            background-color: #444;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .editable:focus {
+            background-color: white;
+            color: black;
+            outline: none;
+        }
+        table.table th,
+        table.table td {
+            padding: 8px;
+            white-space: nowrap;
+        }
+        .form-control,
+        .editable {
+            font-size: 12px;
+            padding: 4px;
+        }
+        .btn-sm {
+            font-size: 10px;
+            padding: 2px 5px;
+        }
+        .mostrar-hover {
+            position: relative;
+        }
+        .mostrar-hover:hover::after {
+            content: attr(data-info);
+            position: absolute;
+            background: #444;
+            padding: 5px;
+            border-radius: 5px;
+            color: white;
+            top: 100%;
+            left: 0;
+            white-space: nowrap;
+            z-index: 10;
+        }
+        .dropdown-menu {
+            font-size: 11px;
+        }
+        .dropdown-item {
+            padding: 2px 8px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Inventario</a>
+            <a class="btn btn-outline-light btn-sm ms-auto" href="/">Volver al Panel Principal</a>
+        </div>
+    </nav>
+
+    <div class="sidebar">
+        <h5>Búsqueda Avanzada</h5>
+        <form>
+            <input type="text" class="form-control mb-2" placeholder="Evento, venue...">
+            <input type="text" class="form-control mb-2" placeholder="Event ID">
+            <select class="form-control mb-2">
+                <option>Desde Hoy</option>
+                <option>Esta Semana</option>
+                <option>Este Mes</option>
+            </select>
+            <select class="form-control mb-2">
+                <option>Todos los estados</option>
+                <option>FOR SALE</option>
+                <option>MANUAL PO</option>
+                <option>BUY</option>
+                <option>PROBLEM</option>
+                <option>PRESALE</option>
+                <option>CANT BUY</option>
+                <option>RESTOCKING</option>
+            </select>
+            <button class="btn btn-primary btn-sm w-100">Buscar</button>
+        </form>
+    </div>
+
+    <div class="table-container">
+        <h2 class="mb-4">Lista de Inventario</h2>
+        <table id="inventoryTable" class="table table-dark table-striped">
+            <thead>
+                <tr>
+                    <th>Event ID</th>
+                    <th>Fecha de Evento</th>
+                    <th>Evento</th>
+                    <th>Venue</th>
+                    <th>Sección</th>
+                    <th>Fila</th>
+                    <th>Cantidad de TK</th>
+                    <th>Estado</th>
+                    <th>Usuario</th>
+                    <th>Información de Compra</th>
+                    <th>Target</th>
+                    <th>Comentarios</th>
+                    <th>Link</th>
+                    <th>Acciones</th>
+                    <th>Duplicar</th> <!-- Columna de duplicado movida a la derecha -->
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td contenteditable="true" class="editable">12345</td>
+                    <td contenteditable="true" class="editable">YYYY-MM-DD</td>
+                    <td>Les Misérables</td>
+                    <td>Sarasota, FL</td>
+                    <td>Left Rear</td>
+                    <td>29</td>
+                    <td contenteditable="true" class="editable">0</td>
+                    <td>
+                        <select class="form-control">
+                            <option>FOR SALE</option>
+                            <option>MANUAL PO</option>
+                            <option>BUY</option>
+                            <option>PROBLEM</option>
+                            <option>PRESALE</option>
+                            <option>CANT BUY</option>
+                            <option>RESTOCKING</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-control">
+                            <option>usuario1</option>
+                            <option>usuario2</option>
+                            <option>usuario3</option>
+                        </select>
+                    </td>
+                    <td contenteditable="true" class="editable">Editar información...</td>
+                    <td class="mostrar-hover" data-info="Detalles del target">Editar target...</td>
+                    <td class="mostrar-hover" data-info="Detalles del comentario">Añadir comentario...</td>
+                    <td>
+                        <button class="btn btn-secondary btn-sm">Copiar Link</button>
+                    </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                ⚙️
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-dark">
+                                <li><a class="dropdown-item" href="#">💾 Guardar</a></li>
+                                <li><a class="dropdown-item" href="#">✏️ Editar</a></li>
+                                <li><a class="dropdown-item" href="#">🗑️ Eliminar</a></li>
+                                <li><a class="dropdown-item" href="#">🔄 Restocking</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                    <td>
+                        <!-- Botón de duplicar al final de las acciones -->
+                        <button class="btn btn-info btn-sm duplicar">Duplicar</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener("click", function(e){
+    if(e.target && e.target.classList.contains("duplicar")){
+        const filaActual = e.target.closest("tr");
+        const tabla = document.querySelector("#inventoryTable tbody");
+        const filaClonada = filaActual.cloneNode(true);
+
+        filaClonada.querySelectorAll("td").forEach((td, index) => {
+            if (td.getAttribute("contenteditable") === "true") {
+                td.textContent = "";
+            }
+
+            if (td.querySelector("select")) {
+                td.querySelector("select").selectedIndex = 0;
+            }
+        });
+
+        tabla.appendChild(filaClonada);
+    }
+});
+</script>
+</body>
+</html>

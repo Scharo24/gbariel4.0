@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Principal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .panel-container {
+            background-color: #1e1e1e;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        .btn-custom {
+            background-color: #00f7ff;
+            color: #121212;
+            border: none;
+            font-weight: bold;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            transition: transform 0.2s, background-color 0.3s;
+        }
+        .btn-custom:hover {
+            background-color: #00d1d1;
+            color: white;
+            transform: scale(1.05);
+        }
+        .btn-logout {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            border-radius: 8px;
+            transition: transform 0.2s, background-color 0.3s;
+        }
+        .btn-logout:hover {
+            background-color: #cc0000;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="panel-container">
+        <h2 class="mb-4">🚀 Panel Principal</h2>
+
+        <!-- Botones de navegación -->
+        <a href="{{ url_for('inventario') }}" class="btn btn-custom">📦 Inventario</a>
+        <a href="{{ url_for('ingreso_masivo') }}" class="btn btn-custom">📥 Ingreso Masivo</a>
+        <a href="{{ url_for('estadisticas') }}" class="btn btn-custom">📊 Estadísticas</a>
+        <a href="{{ url_for('reportes') }}" class="btn btn-custom">📑 Reportes</a>
+
+        <!-- Botón de Logout -->
+        <a href="{{ url_for('logout') }}" class="btn btn-logout">🚪 Cerrar Sesión</a>
+    </div>
+</body>
+</html>
