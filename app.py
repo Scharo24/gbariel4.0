@@ -5,9 +5,13 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime  # Importar datetime
 from flask_migrate import Migrate  # Importar Migrate
+import logging
 
 # Cargar el archivo .env
 load_dotenv()
+
+# Configuración del logging
+logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 app.secret_key = 'clave_secreta'
@@ -52,6 +56,7 @@ class Inventario(db.Model):
 # Ruta de inicio - Redirige al panel si ya está logueado
 @app.route('/')
 def index():
+    logging.debug('Accediendo a la página de inicio')
     if 'user' in session:
         return redirect(url_for('panel_principal'))
     return render_template('login.html')
@@ -59,6 +64,7 @@ def index():
 # Ruta para procesar el login
 @app.route('/login', methods=['POST'])
 def login():
+    logging.debug('Iniciando sesión con usuario: %s', request.form.get('username'))
     username = request.form.get('username')
     password = request.form.get('password')
 
@@ -84,6 +90,7 @@ def login():
 # Ruta de registro de usuarios
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    logging.debug('Accediendo a la página de registro')
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
@@ -183,6 +190,7 @@ def logout():
 
 # Función para crear un usuario admin si no existe
 def crear_admin():
+    logging.debug('Verificando si el usuario admin existe')
     with app.app_context():
         admin = Usuario.query.filter_by(username="admin").first()
         if not admin:
@@ -190,9 +198,8 @@ def crear_admin():
             admin = Usuario(username="admin", password_hash=password_hash, rol="admin")
             db.session.add(admin)
             db.session.commit()
-            print("👤 Usuario admin creado con éxito.")
+            logging.debug("👤 Usuario admin creado con éxito.")
 
-# Ejecutar la aplicación
 if __name__ == '__main__':
     with app.app_context():
         print("📌 Inicializando la base de datos...")
@@ -200,5 +207,4 @@ if __name__ == '__main__':
         crear_admin()  # Verifica si el admin existe, si no, lo crea
         print("✅ Base de datos lista.")
     
-    # Asegúrate de que Flask esté corriendo en el puerto 8080 para Fly.io
     app.run(host="0.0.0.0", port=8080, debug=True)
